@@ -47,11 +47,54 @@ Each stack is containerized and includes a shared frontend. Stress testing scrip
 ## Architecture Diagrams
 
 ### System Overview
-
+<!--
+flowchart TD
+    subgraph Frontend
+        FE["React App<br/>(User Interface)"]
+    end
+    subgraph Flask_Postgres_Stack
+        FBE["Flask API"]
+        PG["PostgreSQL DB"]
+        FBE -- "SQL" -> PG
+    end
+    subgraph Node_Mongo_Stack
+        NBE["Node.js API"]
+        MG["MongoDB"]
+        NBE -- "NoSQL" -> MG
+    end
+    FE -- "REST API Calls<br/>:5000/api/chat" -> FBE
+    FE -- "REST API Calls<br/>:3000/api/chat" -> NBE
+    style FE fill:#f9f,stroke:#333,stroke-width:2px
+    style FBE fill:#bbf,stroke:#333,stroke-width:1px
+    style NBE fill:#bfb,stroke:#333,stroke-width:1px
+    style PG fill:#fff,stroke:#333,stroke-width:1px
+    style MG fill:#fff,stroke:#333,stroke-width:1px
+    classDef db fill:#fff,stroke:#333,stroke-width:1px;
+-->
 ![System Overview](system_overview.png)
 
 ### Sequence Example
-
+<!--
+'''
+sequenceDiagram
+    participant User
+    participant Frontend as React Frontend
+    participant Flask as Flask API (:5000)
+    participant Postgres as PostgreSQL
+    participant Node as Node.js API (:3000)
+    participant Mongo as MongoDB
+    User->>Frontend: Interact via UI
+    Frontend->>Flask: GET /api/chat
+    Flask->>Postgres: Query messages
+    Postgres->>Flask: Messages
+    Flask->>Frontend: JSON messages
+    Frontend->>Node: POST /api/chat {message, sender}
+    Node->>Mongo: Insert message
+    Mongo->>Node: Ack
+    Node->>Frontend: JSON new message
+    Frontend->>User: Display response
+'''
+-->
 ![Sequence Example](sequence_example.png)
 
 ## Example API Calls
