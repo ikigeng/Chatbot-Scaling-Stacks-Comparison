@@ -1,0 +1,34 @@
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - group: docker-credentials
+
+stages:
+- stage: Build
+  jobs:
+  - job: BuildAndPush
+    steps:
+    - task: Docker@2
+      inputs:
+        containerRegistry: '$(dockerRegistry)'
+        repository: 'chat-app'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        tags: |
+          $(Build.BuildId)
+          latest
+
+- stage: Deploy
+  dependsOn: Build
+  jobs:
+  - job: Deploy
+    steps:
+    - task: AzureWebAppContainer@1
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        appName: '$(appName)'
+        imageName: '$(dockerRegistry)/chat-app:$(Build.BuildId)' 
